@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Попутчик — GPS</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a2e; color: #fff; text-align: center; }
+        #status { margin-top: 20px; padding: 15px; background: #16213e; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h1>📍 Мой Попутчик</h1>
+    <p>Отслеживание геолокации...</p>
+    <div id="status">⏳ Инициализация...</div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        const statusDiv = document.getElementById('status');
+
+        // Запрашиваем геолокацию
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    statusDiv.innerHTML = `📍 Широта: ${latitude}<br>📍 Долгота: ${longitude}`;
+                    // Отправляем данные в бота
+                    tg.sendData(JSON.stringify({ lat: latitude, lon: longitude }));
+                },
+                (err) => {
+                    statusDiv.innerHTML = `❌ Ошибка GPS: ${err.message}`;
+                },
+                { enableHighAccuracy: true, maximumAge: 10000 }
+            );
+        } else {
+            statusDiv.innerHTML = '❌ GPS недоступен';
+        }
+    </script>
+</body>
+</html>
